@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Academia - Emisión de Certificados{% endblock %}</title>
+    <style>
+        :root {
+            --azul-marino: #14213D;
+            --azul-marino-suave: #1E2D4A;
+            --dorado: #B8923D;
+            --dorado-claro: #F4E8C1;
+            --blanco: #FFFFFF;
+            --fondo: #F8F9FA;
+            --gris-borde: #E2E8F0;
+            --texto-principal: #1A202C;
+            --texto-secundario: #4A5568;
+            --verde-exito: #2D6A4F;
+            --verde-fondo: #D8F3DC;
+            --azul-info: #1D3557;
+            --azul-fondo: #E0EBF5;
+            --rojo-alerta: #9B2226;
+            --rojo-fondo: #FFE3E3;
+            --gris-neutro: #6C757D;
+            --gris-fondo: #E9ECEF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--fondo);
+            color: var(--texto-principal);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--azul-marino);
+            color: var(--blanco);
+            border-bottom: 4px solid var(--dorado);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-brand h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-brand span {
+            color: var(--dorado);
+        }
+
+        .header-nav a {
+            color: var(--blanco);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .header-nav a:hover {
+            background-color: var(--azul-marino-suave);
+            color: var(--dorado);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        footer {
+            background-color: var(--azul-marino);
+            color: #A0AEC0;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.875rem;
+            border-top: 1px solid var(--azul-marino-suave);
+        }
+
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-brand">
+            <h1>Academia Horizonte <span>| Sistema de Certificados</span></h1>
+        </div>
+        <nav class="header-nav">
+            <a href="/">Tablero</a>
+            <a href="/cargar">Cargar Archivos</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Academia de Formación Técnica y Negocios. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

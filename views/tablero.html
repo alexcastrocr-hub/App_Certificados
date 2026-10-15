@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}Tablero - Certificados de la Academia{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Tarjetas de Métricas */
+    .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: var(--blanco);
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid var(--gris-borde);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        position: relative;
+        overflow: hidden;
+        border-top: 4px solid var(--azul-marino);
+    }
+
+    .metric-card.aprobacion {
+        border-top-color: #2D6A4F;
+    }
+
+    .metric-card.participacion {
+        border-top-color: var(--dorado);
+    }
+
+    .metric-card.sin-certificado {
+        border-top-color: var(--gris-neutro);
+    }
+
+    .metric-card.inconsistencias {
+        border-top-color: var(--rojo-alerta);
+    }
+
+    .metric-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--texto-secundario);
+        letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: var(--azul-marino);
+    }
+
+    .metric-card.aprobacion .metric-value { color: #2D6A4F; }
+    .metric-card.participacion .metric-value { color: var(--dorado); }
+    .metric-card.sin-certificado .metric-value { color: var(--gris-neutro); }
+    .metric-card.inconsistencias .metric-value { color: var(--rojo-alerta); }
+
+    .metric-desc {
+        font-size: 0.8rem;
+        color: var(--texto-secundario);
+    }
+
+    /* Caja de Inconsistencias */
+    .alert-panel {
+        background-color: var(--rojo-fondo);
+        border: 1px solid #F5C2C7;
+        border-left: 5px solid var(--rojo-alerta);
+        border-radius: 6px;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .alert-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .alert-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--rojo-alerta);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .alert-badge {
+        background: var(--rojo-alerta);
+        color: var(--blanco);
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .alert-list {
+        list-style: none;
+    }
+
+    .alert-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed rgba(155, 34, 38, 0.2);
+        font-size: 0.9rem;
+        color: #58151C;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .alert-item:last-child {
+        border-bottom: none;
+    }
+
+    .alert-item strong {
+        font-weight: 600;
+    }
+
+    /* Encabezado de Sección y Tabla */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--azul-marino);
+    }
+
+    .btn-download-all {
+        background-color: var(--dorado);
+        color: var(--azul-marino);
+        text-decoration: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: 1px solid #9A772E;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .btn-download-all:hover {
+        background-color: #A37F2F;
+        color: #000;
+    }
+
+    .table-container {
+        background: var(--blanco);
+        border: 1px solid var(--gris-borde);
+        border-radius: 8px;
+        overflow-x: auto;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.9rem;
+    }
+
+    th {
+        background-color: var(--azul-marino);
+        color: var(--blanco);
+        padding: 0.9rem 1rem;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--gris-borde);
+        color: var(--texto-principal);
+    }
+
+    tr:hover td {
+        background-color: #F8FAFC;
+    }
+
+    /* Badges de Estado */
+    .badge {
+        display: inline-block;
+        padding: 0.3rem 0.65rem;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .badge-aprobacion {
+        background-color: var(--verde-fondo);
+        color: var(--verde-exito);
+        border: 1px solid #B7E4C7;
+    }
+
+    .badge-participacion {
+        background-color: var(--azul-fondo);
+        color: var(--azul-info);
+        border: 1px solid #9DBBD8;
+    }
+
+    .badge-sin-certificado {
+        background-color: var(--rojo-fondo);
+        color: var(--rojo-alerta);
+        border: 1px solid #F5C2C7;
+    }
+
+    .badge-inconsistencia {
+        background-color: var(--rojo-fondo);
+        color: var(--rojo-alerta);
+        border: 1px solid #F5C2C7;
+    }
+
+    .btn-pdf {
+        background-color: var(--azul-marino);
+        color: var(--blanco);
+        text-decoration: none;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
+
+    .btn-pdf:hover {
+        background-color: var(--dorado);
+        color: var(--azul-marino);
+    }
+
+    .btn-disabled {
+        background-color: var(--gris-fondo);
+        color: #ADB5BD;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    {% if error %}
+    <div class="alert-panel">
+        <div class="alert-title">Aviso del Sistema</div>
+        <p>{{ error }}</p>
+    </div>
+    {% endif %}
+
+    <!-- 3 Contadores Grandes + Contador Inconsistencias -->
+    <div class="metric-grid">
+        <div class="metric-card aprobacion">
+            <div class="metric-title">Aprobación</div>
+            <div class="metric-value">{{ contadores.aprobacion }}</div>
+            <div class="metric-desc">Nota &ge; 70 y Asistencia &ge; 80%</div>
+        </div>
+
+        <div class="metric-card participacion">
+            <div class="metric-title">Participación</div>
+            <div class="metric-value">{{ contadores.participacion }}</div>
+            <div class="metric-desc">Nota &lt; 70 y Asistencia &ge; 80%</div>
+        </div>
+
+        <div class="metric-card sin-certificado">
+            <div class="metric-title">Sin Certificado</div>
+            <div class="metric-value">{{ contadores.sin_certificado }}</div>
+            <div class="metric-desc">Asistencia &lt; 80%</div>
+        </div>
+
+        <div class="metric-card inconsistencias">
+            <div class="metric-title">Inconsistencias</div>
+            <div class="metric-value">{{ contadores.inconsistencias }}</div>
+            <div class="metric-desc">Alertas que impiden emitir</div>
+        </div>
+    </div>
+
+    <!-- Cuadro de Inconsistencias -->
+    {% if inconsistencias %}
+    <div class="alert-panel">
+        <div class="alert-header">
+            <div class="alert-title">
+                ⚠️ Inconsistencias Detectadas en los Datos
+            </div>
+            <span class="alert-badge">{{ inconsistencias|length }} casos</span>
+        </div>
+        <ul class="alert-list">
+            {% for inc in inconsistencias %}
+            <li class="alert-item">
+                <span><strong>{{ inc.tipo }}:</strong> {{ inc.nombre }} (ID: {{ inc.identificacion }}) &bull; <em>{{ inc.programa }}</em></span>
+                <span style="font-size: 0.82rem; margin-top: 2px;">{{ inc.detalle }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Tabla de Estudiantes -->
+    <div class="section-header">
+        <h2 class="section-title">Listado de Estudiantes y Certificación</h2>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <form method="get" action="/" style="display: flex; gap: 0.5rem; align-items: center;">
+                <label for="programa" style="font-size: 0.85rem; font-weight: 600; color: var(--texto-secundario);">Programa:</label>
+                <select name="programa" id="programa" onchange="this.form.submit()" style="padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--gris-borde); font-size: 0.85rem;">
+                    <option value="" {% if not programa_actual %}selected{% endif %}>Todos los programas</option>
+                    {% for prog in programas %}
+                    <option value="{{ prog }}" {% if prog == programa_actual %}selected{% endif %}>{{ prog }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <a href="/descargar-todos" class="btn-download-all">📥 Descargar todos los certificados</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Identificación</th>
+                    <th>Estudiante</th>
+                    <th>Programa</th>
+                    <th style="text-align: center;">Módulos</th>
+                    <th style="text-align: center;">Promedio</th>
+                    <th style="text-align: center;">Asistencia</th>
+                    <th style="text-align: center;">Estado</th>
+                    <th style="text-align: center;">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for est in estudiantes %}
+                <tr>
+                    <td><strong>{{ est.identificacion }}</strong></td>
+                    <td>{{ est.nombre }}</td>
+                    <td>{{ est.programa }}</td>
+                    <td style="text-align: center;">{{ est.modulos if est.modulos is not none else "-" }}</td>
+                    <td style="text-align: center;">
+                        {% if est.promedio is not none %}{{ "%.2f"|format(est.promedio) }}{% else %}-{% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if est.asistencia is not none %}{{ "%.2f"|format(est.asistencia) }}%{% else %}-{% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if est.estado == 'Aprobación' %}
+                            <span class="badge badge-aprobacion">Aprobación</span>
+                        {% elif est.estado == 'Participación' %}
+                            <span class="badge badge-participacion">Participación</span>
+                        {% elif est.estado == 'Sin certificado' %}
+                            <span class="badge badge-sin-certificado">Sin Certificado</span>
+                        {% else %}
+                            <span class="badge badge-inconsistencia">Inconsistencia</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: center;">
+                        {% if est.certificable %}
+                            <a href="/certificado/{{ est.identificacion }}/{{ est.programa }}" target="_blank" class="btn-pdf">Ver PDF</a>
+                        {% else %}
+                            <span class="btn-disabled">No emitible</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

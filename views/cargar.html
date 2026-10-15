@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Cargar Archivos - Academia de Certificados{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        background: var(--blanco);
+        border: 1px solid var(--gris-borde);
+        border-radius: 8px;
+        padding: 2.5rem;
+        max-width: 650px;
+        margin: 1rem auto;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-title {
+        color: var(--azul-marino);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        border-bottom: 2px solid var(--dorado);
+        padding-bottom: 0.5rem;
+    }
+
+    .form-desc {
+        color: var(--texto-secundario);
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--azul-marino);
+        font-size: 0.9rem;
+    }
+
+    .form-control-file {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px dashed var(--gris-borde);
+        border-radius: 6px;
+        background-color: #FAFAFA;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .form-control-file:hover {
+        border-color: var(--dorado);
+        background-color: #FDFBF7;
+    }
+
+    .form-help {
+        font-size: 0.8rem;
+        color: var(--texto-secundario);
+        margin-top: 0.35rem;
+    }
+
+    .btn-submit {
+        background-color: var(--azul-marino);
+        color: var(--blanco);
+        border: none;
+        padding: 0.85rem 1.75rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-submit:hover {
+        background-color: var(--dorado);
+        color: var(--azul-marino);
+    }
+
+    .flash-messages {
+        max-width: 650px;
+        margin: 0 auto 1.5rem auto;
+    }
+
+    .alert {
+        padding: 0.9rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-error {
+        background-color: var(--rojo-fondo);
+        color: var(--rojo-alerta);
+        border: 1px solid #F5C2C7;
+    }
+
+    .alert-success {
+        background-color: var(--verde-fondo);
+        color: var(--verde-exito);
+        border: 1px solid #B7E4C7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="form-card">
+        <h2 class="form-title">Carga de Datos Académicos</h2>
+        <p class="form-desc">
+            Sube los dos archivos oficiales en formato Excel (.xlsx) para actualizar las tablas de estudiantes y evaluaciones en Supabase.
+        </p>
+
+        <form action="/cargar" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label" for="maestro">1. Maestro de Estudiantes (.xlsx)</label>
+                <input type="file" id="maestro" name="maestro" accept=".xlsx" class="form-control-file" required>
+                <p class="form-help">Debe incluir la hoja "Estudiantes" con las columnas oficiales.</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="evaluaciones">2. Registro de Evaluaciones (.xlsx)</label>
+                <input type="file" id="evaluaciones" name="evaluaciones" accept=".xlsx" class="form-control-file" required>
+                <p class="form-help">Debe incluir la hoja "Evaluaciones" con módulos, notas y porcentajes de asistencia.</p>
+            </div>
+
+            <button type="submit" class="btn-submit">📤 Procesar y Cargar a Supabase</button>
+        </form>
+    </div>
+{% endblock %}
